@@ -1,0 +1,418 @@
+<html>
+<head>
+  <title>Drawing Tool</title>
+  <link rel="stylesheet" type="text/css" href="style.css"/>
+  <link rel="stylesheet" media="screen" type="text/css" href="../libs/Belelros-jQuery-ColorPicker-2d3230d/css/colorpicker.css" />
+  <link type="text/css" href="../libs/jquery-ui-1.8.18.custom/css/ui-lightness/jquery-ui-1.8.18.custom.css" rel="Stylesheet" />
+  <link type="text/css" href="../libs/menu/menu_style.css" rel="Stylesheet" />
+  <style>
+    body {
+      -webkit-user-select: none;
+    }
+  </style>
+</head>
+<body>
+<script type="text/javascript" src="../libs/jquery.min.js"></script>
+<script type="text/javascript" src="../libs/jquery-ui-1.8.18.custom/js/jquery-ui-1.8.18.custom.min.js"></script>
+<script type="text/javascript" src="../libs/processing-1.3.6.js"></script>
+<script type="text/javascript" src="../libs/Base.js"></script>
+<script type="text/javascript" src="../libs/Belelros-jQuery-ColorPicker-2d3230d/colorpicker.js"></script>
+
+<div id="wrapper">
+
+    <!--<button id="start">Start</button>
+    <button id="stop">Stop</button>-->
+    <br />
+    <br />
+
+    <div class="menu">
+      <ul class="menuList">
+        <li><a href="#" target="_self" >File</a>
+          <ul>
+            <li><a href="#" target="_self">New</a></li>
+            <li><a href="#" target="_self">Open</a></li>
+            <li><a id="save" href="#" target="_self">Save</a></li>
+          </ul>
+        </li>
+        <li><a href="#" target="_self" >Edit</a>
+          <ul>
+            <li><a id="undo" href="#" target="_self">Undo</a></li>
+            <li><a id="redo" href="#" target="_self">Redo</a></li>
+            <li><a id="copy" href="#" target="_self">Copy</a></li>
+            <li><a id="paste" href="#" target="_self">Paste</a></li>
+            <li><a id="delete" href="#" target="_self">Delete</a></li>
+          </ul>
+        </li>
+      </ul>
+    </div>
+
+    <img src="../images/pointerbutton.png" alt="pointer" id="pointer"/><img src="../images/rectanglebutton.png" alt="rectangle" id="rect"/><img src="../images/trianglebutton.png" alt="triangle" id="triangle"/><img src="../images/circlebutton.png" alt="circle" id="circle"/><img src="../images/linebutton.png" alt="line" id="line"/>
+    <div id="customWidget">
+        <div id="colorselector"><div style="background-color: #EFEFEF"></div></div>
+        <div id="colorpickerholder2"></div>
+    </div>
+    <div id="lineWeightSlider"></div>
+    <div id="lineWeightPreview"></div>
+    <br />
+    <br />
+    <button id="color">Random Color</button>
+    <br />
+    <br />
+    <canvas id="glibcanvas"></canvas>
+
+</div>
+
+<script>
+
+  const RECT = 1
+    , CIRCLE = 2
+    , TRIANGLE = 3
+    , LINE = 4;
+
+  const DEFAULT = 1
+  , MOVE = 2
+  , CREATE = 3
+  , RESIZE = 4;
+
+  const CTRL_KEY = 17;
+
+  const LEFT_TOP = 1
+  , LEFT_BOTTOM = 2
+  , RIGHT_TOP = 3
+  , RIGHT_BOTTOM = 4;
+
+  const LEFT = 1
+    , RIGHT = 2
+    , TOP = 3
+    , BOTTOM = 4;
+
+  const CORNERS = [];
+  CORNERS[0] = LEFT_TOP;
+  CORNERS[1] = LEFT_BOTTOM;
+  CORNERS[2] = RIGHT_TOP;
+  CORNERS[3] = RIGHT_BOTTOM;
+
+  const PLACES = []
+  PLACES[LEFT_TOP] = {
+    "lr": LEFT,
+    "tb": TOP
+  }
+  PLACES[LEFT_BOTTOM] = {
+    "lr": LEFT,
+    "tb": BOTTOM
+  }
+
+  PLACES[RIGHT_TOP] = {
+    "lr": RIGHT,
+    "tb": TOP
+  }
+
+  PLACES[RIGHT_BOTTOM] = {
+    "lr": RIGHT,
+    "tb": BOTTOM
+  }
+
+  window.Utils = {};
+
+
+ (function (Utils) {
+    Utils.ResizeRect = {};
+    var _resizeRect;
+    function ResizeRect () {
+      var _width = 8;
+      var _height = 8;
+      var _offsetX = 4;
+      var _offsetY = 4;
+
+      this.getLeftX = function (x) {
+        return x - _width + _offsetX;
+      };
+
+      this.getRightX = function (x, w) {
+        return x + w - _offsetX;
+      };
+
+      this.getTopY = function (y) {
+        return y - _height + _offsetY;
+      };
+
+      this.getBottomY = function (y, h) {
+        return y + h - _offsetY;
+      };
+
+      this.getWidth = function () {
+        return _width;
+      };
+
+      this.getHeight = function () {
+        return _height;
+      };
+
+      this.getOffsetX = function () {
+        return _offsetX;
+      };
+
+      this.getOffsetY = function () {
+        return _offsetY;
+      };
+    } // END RESIZE_RECT
+    Utils.ResizeRect.getInstance = function() {
+      if (!_resizeRect){
+        _resizeRect = new ResizeRect();
+      } //if
+      return _resizeRect;
+    } //getInstance
+
+    Utils.ResizeCircle = {};
+    var _resizeCircle;
+    function ResizeCircle () {
+      var _width = 8;
+      var _height = 8;
+      var _offsetX = 4;
+      var _offsetY = 4;
+
+      this.getLeftX = function (x, w) {
+        return (x - w) - _width + _offsetX;
+      };
+
+      this.getRightX = function (x, w) {
+        return x + w - _offsetX;
+      };
+
+      this.getTopY = function (y, h) {
+        return (y - h) - _height + _offsetY;
+      };
+
+      this.getBottomY = function (y, h) {
+        return y + h - _offsetY;
+      };
+
+      this.getWidth = function () {
+        return _width;
+      };
+
+      this.getHeight = function () {
+        return _height;
+      };
+
+      this.getOffsetX = function () {
+        return _offsetX;
+      };
+
+      this.getOffsetY = function () {
+        return _offsetY;
+      };
+    } // END RESIZE_CIRCLE
+    Utils.ResizeCircle.getInstance = function() {
+      if (!_resizeCircle){
+        _resizeCircle = new ResizeCircle();
+      } //if
+      return _resizeCircle;
+    } //getInstance
+  }(window.Utils));
+
+
+
+</script>
+
+<script src="commands.js"></script>
+<script src="color.js"></script>
+<script src="shapeFactory.js"></script>
+<script src="shapes.js"></script>
+<script src="rect.js"></script>
+<script src="circle.js"></script>
+<script src="triangle.js"></script>
+<script src="line.js"></script>
+<script src="defaultState.js"></script>
+<script src="createState.js"></script>
+<script src="resizeState.js"></script>
+<script src="moveState.js"></script>
+<script src="undoManager.js"></script>
+<script src="canvas.js"></script>
+<script src="controller.js"></script>
+
+<script>
+  $(document).ready(function () {
+    $("#start").click(function (e) {
+      pjs.loop();
+    });
+
+    $("#stop").click(function (e) {
+      pjs.noLoop();
+    });
+
+    $("#redo").click(function (e) {
+      console.log("redo click");
+      Utils.UndoManager.getInstance().redo();
+    });
+
+    $("#undo").click(function (e) {
+      console.log("undo click");
+      Utils.UndoManager.getInstance().undo();
+      return false;
+    });
+
+    $("#rect").click(function (e) {
+      console.log("rect click listener");
+      controller.perform("setCanvasState", [CREATE,RECT]);
+    });
+
+    $("#triangle").click(function (e) {
+      console.log("triangle click listener");
+      controller.perform("setCanvasState", [CREATE,TRIANGLE]);
+    });
+
+    $("#circle").click(function (e) {
+      console.log("circle click listener");
+      controller.perform("setCanvasState", [CREATE,CIRCLE]);
+    });
+
+    $("#line").click(function (e) {
+      console.log("line click listener");
+      controller.perform("setCanvasState", [CREATE,LINE]);
+    });
+
+    $("#color").click(function (e) {
+      console.log("color click");
+      controller.perform("setColor", [Utils.generateColor()]);
+    });
+
+    $("#delete").click(function (e) {
+      console.log("delete click");
+      controller.perform("deleteShape");
+    });
+
+    $("#copy").click(function (e) {
+      console.log("copy click");
+      controller.perform("copyShape");
+    });
+
+    $("#paste").click(function (e) {
+      console.log("paste click");
+      controller.perform("pasteShape");
+    });
+
+    $("#save").click(function (e) {
+      console.log("save click");
+      pjs.save("export.png");
+    });
+
+    var c = document.getElementById('glibcanvas');
+    pjs = new Processing(c);
+
+    var canvas = Utils.Canvas.getInstance();
+    var controller = Utils.Controller.getInstance();
+    pjs.setup = function() {
+      pjs.size(800, 800);
+      pjs.frameRate(200);
+      pjs.stroke("#003300");
+      pjs.fill("#0000FF");
+      var fontA = pjs.loadFont("Arial");
+      pjs.textFont(fontA, 20);
+    }
+
+    pjs.draw = function() {
+      // console.log("pjs draw");
+      pjs.background(255, 255, 255);
+      canvas.draw();
+    };
+
+    pjs.mousePressed = function () {
+      canvas.mousePressed();
+    },
+
+    pjs.mouseDragged = function () {
+      canvas.mouseDragged();
+      if (canvas.getCurrentState() === MOVE) {
+        $(document.body).css("cursor", "move");
+        return;
+      }
+    },
+
+    pjs.mouseReleased = function () {
+      canvas.mouseReleased();
+    },
+
+    pjs.mouseMoved = function () {
+      var i
+        , shapes = canvas.getShapes()
+        , end = shapes.length
+        , shape
+
+      for (i = 0; i < end; i++) {
+        shape = shapes[i];
+        if (shape.isMouseOver()) {
+          $(document.body).css("cursor", "move");
+          return;
+        }
+      }
+      $(document.body).css("cursor", "auto");
+    },
+
+    pjs.keyReleased = function () {
+      console.log("pjs - keyReleased");
+      pjs.keyCode = null;
+
+      console.log("keyCode: ", pjs.keyCode);
+    },
+
+    pjs
+
+    pjs.setup();
+
+    // Color Picker
+    var widt = false;
+    $('#colorpickerholder2').ColorPicker({
+        flat: true,
+        color: '#EFEFEF',
+        onChange: function(hsb, hex, rgb) {
+            $('#colorselector div').css('backgroundColor', '#' + hex);
+            controller.perform("setColor", new Utils.Color(rgb));
+        }
+    });
+    $('#colorselector').bind('click', function() {
+        $('#colorpickerholder2').stop().animate({height: widt ? 0 : 173}, 500);
+        widt = !widt;
+    });
+    // Line Weight Slider
+    $('#lineWeightSlider').slider({
+      value: 1,
+      min: 1,
+      max: 10,
+      slide: function (event, ui) {
+        $('#lineWeightPreview').css('height', ui.value);
+        controller.perform("setLineWeight", ui.value);
+      }
+    });
+
+    // $("#colorselector").ColorPicker({  
+    //     color: '#EFEFEF',
+    //     onShow: function (colpkr) {  
+    //         $(colpkr).fadeIn(500);  
+    //         return false;  
+    //     },  
+    //     onHide: function (colpkr) {  
+    //         $(colpkr).fadeOut(500);  
+    //         return false;  
+    //     },  
+    //     onChange: function (hsb, hex, rgb) {  
+    //         $('#colorselector div').css('backgroundColor', '#' + hex);  
+    //     }  
+    // });
+  });
+  // Action buttons
+  $("img").on("click", function(event){
+    var old = $('img[pressed="true"]');
+    old.removeAttr("pressed");
+    old.attr("src", function(){
+      return "../images/" + old.attr("alt") + "button.png";
+    });
+    $(this).attr("pressed", "true");
+    $(this).attr("src", function(){
+      return "../images/" + this.alt + "buttonselected.png";
+    });
+  });
+</script>
+
+</body>
+</html>
