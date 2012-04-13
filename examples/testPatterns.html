@@ -20,8 +20,8 @@
 
 <div id="wrapper">
 
-    <button id="start">Start</button>
-    <button id="stop">Stop</button>
+    <!--<button id="start">Start</button>
+    <button id="stop">Stop</button>-->
     <br />
     <br />
 
@@ -38,8 +38,8 @@
           <ul>
             <li><a id="undo" href="#" target="_self">Undo</a></li>
             <li><a id="redo" href="#" target="_self">Redo</a></li>
-            <li><a href="#" target="_self">Copy</a></li>
-            <li><a href="#" target="_self">Paste</a></li>
+            <li><a id="copy" href="#" target="_self">Copy</a></li>
+            <li><a id="paste" href="#" target="_self">Paste</a></li>
             <li><a id="delete" href="#" target="_self">Delete</a></li>
           </ul>
         </li>
@@ -55,7 +55,7 @@
     <div id="lineWeightPreview"></div>
     <br />
     <br />
-    <button id="color">Change Color</button>
+    <button id="color">Random Color</button>
     <br />
     <br />
     <canvas id="glibcanvas"></canvas>
@@ -280,6 +280,16 @@
     $("#delete").click(function (e) {
       console.log("delete click");
       controller.perform("deleteShape");
+    });
+
+    $("#copy").click(function (e) {
+      console.log("copy click");
+      controller.perform("copyShape");
+    });
+
+    $("#paste").click(function (e) {
+      console.log("paste click");
+      controller.perform("pasteShape");
     });
 
     var c = document.getElementById('glibcanvas');

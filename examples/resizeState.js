@@ -11,7 +11,6 @@ var ResizeState = Base.extend({
 
   // Resize
   "start": function () {
-    //console.log("ResizeState start")
 
     var shapeGroup = this.canvas.getShapeGroup();
     this.overlayShape = Utils.ShapeFactory.createShape(RECT, {
@@ -31,8 +30,6 @@ var ResizeState = Base.extend({
     console.log("corner: ", corner);
     this.overlayShape.setResizePoint(corner);
     this.canvas.setOverlayShape(this.overlayShape);
-    // console.log("overlayShape: ", this.overlayShape);
-    //console.log("beforeResize: ", this.beforeResize);
     this.overlayShape.setMaxCoords();
     this.overlayShape.setMinCoords();
   },

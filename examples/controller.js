@@ -68,6 +68,22 @@
         command.execute();
         _undoManager.register(command);
       },
+
+      "copyShape": function () {
+        console.log("Controller - copyShape");
+        //console.log("shape: ", shape);
+        var command = new CopyShapeCommand(_canvas);
+        command.execute();
+        _undoManager.register(command);
+      },
+
+      "pasteShape": function () {
+        console.log("Controller - pasteShape");
+        //console.log("shape: ", shape);
+        var command = new PasteShapeCommand(_canvas);
+        command.execute();
+        _undoManager.register(command);
+      },
     };
 
   this.perform = function (action, options) {

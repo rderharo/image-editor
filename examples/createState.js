@@ -13,10 +13,7 @@ var CreateState = Base.extend({
   },
 
   "start": function () {
-    //console.log("CreateState - start");
-    //console.log("shapeType: ", this.canvas.getShapeType());
     var that = this;
-    //console.log("that.canvas.getLineColor(): ", that.canvas.getLineColor());
     var shape = Utils.ShapeFactory.createShape(this.canvas.getShapeType(), {
       "x": pjs.mouseX,
       "y": pjs.mouseY,
@@ -31,9 +28,6 @@ var CreateState = Base.extend({
     });
     shape.setResizePoint(LEFT_TOP);
     this.canvas.setOverlayShape(shape);
-
-    //console.log("overlayShape: ", this.canvas.getOverlayShape());
-    //console.log("shape.getLineColor(): ", shape.getLineColor());
 
     this.canvas.getOverlayShape().setMaxCoords({
       "x": pjs.mouseX,

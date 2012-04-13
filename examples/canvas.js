@@ -32,6 +32,19 @@
       "b": 255,
     })
 
+    this.getShapeBuffer = function(){
+      return _buffer;
+    }
+
+    this.addToBuffer = function(shape) {
+      console.log("Adding to buffer");
+      _buffer = shape;
+    };
+
+    this.paste = function(shape) {
+      console.log("Pasting");
+      this.addShape(shape);
+    };
 
     this.getShapeFromPointer = function() {
       //////console.log("Canvas - getShapeFromPointer");
@@ -94,7 +107,7 @@
     };
 
     this.addShape = function (shape) {
-      //console.log("Canvas - addShape");
+      console.log("Canvas - addShape");
       _shapes.push(shape);
       if (shape.isSelected()) {
         _selectedShapes.push(shape);

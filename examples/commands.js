@@ -69,7 +69,6 @@ DeleteShapeCommand = function (canvas)  {
 
 
 SetColorCommand = function (shapes, color)  {
-  //console.log("SetColorCommand");
   var oldColor = []
     , i
     , end = shapes.length;
@@ -77,19 +76,15 @@ SetColorCommand = function (shapes, color)  {
     for (i = 0; i < end; i++) {
       oldColor.push(shapes[i].getColor());
     }
-    //console.log("oldColor: ", oldColor);
 
 
   return {
     "execute": function () {
-      //console.log("execute SetColorCommand");
       for (i = 0; i < end; i++) {
         shapes[i].setColor(color);
       }
     },
     "undo": function () {
-      //console.log("undo SetColorCommand");
-      //console.log("oldColor: ", oldColor);
       for (i = 0; i < end; i++) {
         shapes[i].setColor(oldColor[i]);
       }
@@ -151,18 +146,12 @@ CreateShapeGroupCommand = function (canvas, shapes)  {
 }
 
 ResizeShapeCommand = function (shape, options)  {
-  //console.log("ResizeShapeCommand");
-  //console.log("shape: ", shape);
-  //console.log("options: ", options);
   var oldDimensions = shape.getDimensions();
   var oldCoords = shape.getCoords();
 
   return {
     "execute": function () {
       console.log("ResizeShapeCommand - execute");
-      //console.log("execute");
-      //console.log("dimensions: ", dimensions);
-      //console.log("coords: ", coords);
       shape.setDimensions(options.newDimensions)
         .setCoords(options.newCoords);
       options.canvas.updateShapeGroup();
@@ -170,9 +159,6 @@ ResizeShapeCommand = function (shape, options)  {
     },
 
     "undo": function () {
-      //console.log("ResizeShapeCommand");
-      //console.log("undo");
-      //console.log("options: ", options);
       shape.setDimensions(oldDimensions)
         .setCoords(oldCoords);
       options.canvas.updateShapeGroup();
@@ -182,10 +168,11 @@ ResizeShapeCommand = function (shape, options)  {
 }
 
 
-PasteCommand = function (canvas, shape)  {
+PasteShapeCommand = function (canvas)  {
+  var shape = canvas.getShapeBuffer();
   return {
     "execute": function () {
-      canvas.insertShape(shape);
+      canvas.paste(shape);
     },
     "undo": function () {
       canvas.removeShape(shape);
@@ -193,32 +180,32 @@ PasteCommand = function (canvas, shape)  {
   }
 }
 
+CopyShapeCommand = function (canvas)  {
+  var selectedShape = canvas.getSelectedShapes()[0];
+  var shape = Utils.ShapeFactory.createShape(selectedShape.getType(), {
+      "x": selectedShape.getX(),
+      "y": selectedShape.getY(),
+      "width": selectedShape.getWidth(),
+      "height": selectedShape.getHeight(),
+      "color": selectedShape.getColor(),
+      "lineWeight": selectedShape.getLineWeight(),
+      "lineStyle": null,
+      "lineColor": new Utils.Color(0,0,0),
+      "selected": selectedShape.getSelected(),
+      "group": selectedShape.getGroup(),
+      "overlay": Object.hasOwnProperty("getOverlay") && selectedShape.getOverlay(),
+    });
+  return {
+    "execute": function () {
+      console.log("copying to buffer");
+      canvas.addToBuffer(shape);
+    },
+    "undo": function () {
+    }
+  }
+}
+
 MoveCommand = function (canvas, shape, options)  {
-
-  // options object
-  //{
-    //"oldDimensions": {
-      //"width": shape.getWidth(),
-      //"height": shape.getHeight(),
-    //},
-    //"oldCoords": {
-      //"x": shape.getX(),
-      //"y": shape.getY(),
-    //}
-  //}
-
-
-  // dimensions object
-  //{
-    //"width": shape.getWidth(),
-    //"height": shape.getHeight()
-  //}
-
-  // coords object
-  //{
-    //"x": shape.getX(),
-    //"y": shape.getY(),
-  //}
   var dimensions = shape.getDimensions();
   var coords = shape.getCoords();
 
